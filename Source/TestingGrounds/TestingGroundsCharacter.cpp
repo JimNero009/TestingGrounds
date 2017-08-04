@@ -2,7 +2,6 @@
 
 #include "TestingGroundsCharacter.h"
 #include "TestingGroundsProjectile.h"
-#include "Animation/AnimInstance.h"
 #include "Camera/CameraComponent.h"
 #include "Components/CapsuleComponent.h"
 #include "Components/InputComponent.h"
@@ -46,16 +45,13 @@ ATestingGroundsCharacter::ATestingGroundsCharacter()
 
 	// Note: The ProjectileClass and the skeletal mesh/anim blueprints for Mesh1P, FP_Gun, and VR_Gun 
 	// are set in the derived blueprint asset named MyCharacter to avoid direct content references in C++.
+
 }
 
 void ATestingGroundsCharacter::BeginPlay()
 {
 	// Call the base class  
 	Super::BeginPlay();
-
-	Gun = GetWorld()->SpawnActor<AGun>(GunBlueprint);
-	Gun->AttachToComponent(Mesh1P, FAttachmentTransformRules(EAttachmentRule::SnapToTarget, true), TEXT("GripPoint"));
-
 }
 
 //////////////////////////////////////////////////////////////////////////
@@ -69,10 +65,14 @@ void ATestingGroundsCharacter::SetupPlayerInputComponent(class UInputComponent* 
 	PlayerInputComponent->BindAction("Jump", IE_Pressed, this, &ACharacter::Jump);
 	PlayerInputComponent->BindAction("Jump", IE_Released, this, &ACharacter::StopJumping);
 
-	//InputComponent->BindTouch(EInputEvent::IE_Pressed, this, &ATestingGroundsCharacter::TouchStarted);
+	// having to set the gun here to avoid null reference to it 
+	Gun = GetWorld()->SpawnActor<AGun>(GunBlueprint);
+	Gun->AttachToComponent(Mesh1P, FAttachmentTransformRules(EAttachmentRule::SnapToTarget, true), TEXT("GripPoint"));
+	Gun->AnimInstance = Mesh1P->GetAnimInstance();
+
 	if (EnableTouchscreenMovement(PlayerInputComponent) == false)
 	{
-		//PlayerInputComponent->BindAction("Fire", IE_Pressed, this, &ATestingGroundsCharacter::OnFire);
+		PlayerInputComponent->BindAction("Fire", IE_Pressed, Gun, &AGun::OnFire);
 	}
 
 	PlayerInputComponent->BindAction("ResetVR", IE_Pressed, this, &ATestingGroundsCharacter::OnResetVR);
@@ -114,7 +114,7 @@ void ATestingGroundsCharacter::EndTouch(const ETouchIndex::Type FingerIndex, con
 	}
 	if ((FingerIndex == TouchItem.FingerIndex) && (TouchItem.bMoved == false))
 	{
-		//OnFire();
+		Gun->OnFire();
 	}
 	TouchItem.bIsPressed = false;
 }
