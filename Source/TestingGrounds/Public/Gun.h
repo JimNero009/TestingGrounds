@@ -32,6 +32,7 @@ protected:
 public:	
 
 	/** Fires a projectile. */
+	UFUNCTION(BlueprintCallable)
 	void OnFire();
 
 	// Called every frame
