@@ -68,7 +68,7 @@ void ATestingGroundsCharacter::SetupPlayerInputComponent(class UInputComponent* 
 	// having to set the gun here to avoid null reference to it 
 	Gun = GetWorld()->SpawnActor<AGun>(GunBlueprint);
 	Gun->AttachToComponent(Mesh1P, FAttachmentTransformRules(EAttachmentRule::SnapToTarget, true), TEXT("GripPoint"));
-	Gun->AnimInstance = Mesh1P->GetAnimInstance();
+	Gun->AnimInstance1P = Mesh1P->GetAnimInstance();
 
 	if (EnableTouchscreenMovement(PlayerInputComponent) == false)
 	{
